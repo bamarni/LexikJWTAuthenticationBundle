@@ -45,6 +45,7 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue('username')
                     ->cannotBeEmpty()
                 ->end()
+                ->scalarNode('login_path')->end()
             ->end();
 
         return $treeBuilder;

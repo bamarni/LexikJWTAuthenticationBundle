@@ -69,6 +69,11 @@
         </service>
         <!-- JWT Security Authentication Entry Point -->
         <service id="lexik_jwt_authentication.security.authentication.entry_point" class="%lexik_jwt_authentication.security.authentication.entry_point.class%" public="false"></service>
+        <!-- JWT Session Cookie Listener -->
+        <service id="lexik_jwt_authentication.session_listener" class="Lexik\Bundle\JWTAuthenticationBundle\EventListener\SessionListener">
+            <argument>%lexik_jwt_authentication.login_path%</argument>
+            <tag name="kernel.event_subscriber" />
+        </service>
     </services>
 
 </container>
