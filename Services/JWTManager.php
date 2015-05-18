@@ -6,6 +6,7 @@ use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTCreatedEvent;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTDecodedEvent;
 use Lexik\Bundle\JWTAuthenticationBundle\Events;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -39,21 +40,23 @@ class JWTManager implements JWTManagerInterface
     protected $userIdentityField;
 
     /**
-     * @var Request
+     * @var ContainerInterface
      */
-    protected $request;
+    protected $container;
 
     /**
      * @param JWTEncoderInterface      $encoder
      * @param EventDispatcherInterface $dispatcher
      * @param int                      $ttl
+     * @param ContainerInterface       $container
      */
-    public function __construct(JWTEncoderInterface $encoder, EventDispatcherInterface $dispatcher, $ttl)
+    public function __construct(JWTEncoderInterface $encoder, EventDispatcherInterface $dispatcher, $ttl, ContainerInterface $container)
     {
         $this->jwtEncoder        = $encoder;
         $this->dispatcher        = $dispatcher;
         $this->ttl               = $ttl;
         $this->userIdentityField = 'username';
+        $this->container         = $container;
     }
 
     /**
@@ -67,7 +70,7 @@ class JWTManager implements JWTManagerInterface
 
         $this->addUserIdentityToPayload($user, $payload);
 
-        $event = new JWTCreatedEvent($payload, $user, $this->request);
+        $event = new JWTCreatedEvent($payload, $user, $this->container->get('request'));
         $this->dispatcher->dispatch(Events::JWT_CREATED, $event);
 
         return $this->jwtEncoder->encode($event->getData());
@@ -82,7 +85,7 @@ class JWTManager implements JWTManagerInterface
             return false;
         }
 
-        $event = new JWTDecodedEvent($payload, $this->request);
+        $event = new JWTDecodedEvent($payload, $this->container->get('request'));
         $this->dispatcher->dispatch(Events::JWT_DECODED, $event);
 
         if (!$event->isValid()) {
@@ -119,23 +122,5 @@ class JWTManager implements JWTManagerInterface
     public function setUserIdentityField($userIdentityField)
     {
         $this->userIdentityField = $userIdentityField;
-    }
-
-    /**
-     * @param Request $request
-     */
-    public function setRequest(Request $request = null)
-    {
-        $this->request = $request;
-    }
-
-    /**
-     * Get request
-     *
-     * @return Request
-     */
-    public function getRequest()
-    {
-        return $this->request;
     }
 }
