@@ -75,7 +75,7 @@ class JWTEncoder implements JWTEncoderInterface
      */
     protected function getPrivateKey()
     {
-        return openssl_pkey_get_private('file://' . $this->privateKey, $this->passPhrase);
+        return openssl_pkey_get_private($this->privateKey, $this->passPhrase);
     }
 
     /**
@@ -83,6 +83,6 @@ class JWTEncoder implements JWTEncoderInterface
      */
     protected function getPublicKey()
     {
-        return openssl_pkey_get_public('file://' . $this->publicKey);
+        return openssl_pkey_get_public($this->publicKey);
     }
 }
